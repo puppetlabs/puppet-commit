@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'openai'
+
+# Configure OpenAI API credentials
+OpenAI.configure do |config|
+  config.access_token = ENV.fetch('OPENAI_API_KEY')
+  end
