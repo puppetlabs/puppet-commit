@@ -8,3 +8,4 @@ re-run bundle install
 
 then run the exe 
 `bundle exec puppet-commit`
+
