@@ -15,11 +15,8 @@ Gem::Specification.new do |spec|
   DESC
   spec.homepage      = 'https://github.com/puppetlabs/puppet-commit'
   spec.license       = 'MIT'
-
-  # Specify gem dependencies
-  spec.add_runtime_dependency 'puppet', '~> 8.0'
-  spec.add_development_dependency 'rspec', '~> 3.0'
-
+  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  
   # Specify the main entry point file
   spec.files = Dir[
       'README.md',

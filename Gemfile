@@ -4,28 +4,8 @@ source ENV['GEM_SOURCE'] || 'https://rubygems.org'
 
 gemspec
 
-group :development do
-  gem 'json'
-
-  gem 'pry'
-  gem 'pry-byebug'
-  gem 'pry-stack_explorer'
-
-  gem 'rake', '>= 12.3.3'
-  gem 'rspec', '~> 3.1'
-  gem 'rspec-collection_matchers', '~> 1.0'
-  gem 'rspec-its', '~> 1.0'
-  gem 'rspec-json_expectations', '~> 1.4'
-end
-
-group :release do
-  gem 'faraday-retry', '~> 2.0.0', require: false
-  gem 'github_changelog_generator', require: false
-end
-
-group :coverage, optional: ENV['COVERAGE'] != 'yes' do
-  gem 'simplecov', require: false
-  gem 'simplecov-console', require: false
+group :required do
+    gem 'ruby-openai', '~> 4.0', require: true
 end
 
 group :rubocop do
