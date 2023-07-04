@@ -14,8 +14,7 @@ Gem::Specification.new do |spec|
       It streamlines the process of committing changes to version control systems using AI.
   DESC
   spec.homepage      = 'https://github.com/puppetlabs/puppet-commit'
-  spec.license       = 'MIT'
-  spec.executables << 'puppet-commit'
+  spec.license       = 'Apache-2.0
 
   # Specify the main entry point file
   spec.files = Dir[
