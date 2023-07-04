@@ -15,8 +15,8 @@ Gem::Specification.new do |spec|
   DESC
   spec.homepage      = 'https://github.com/puppetlabs/puppet-commit'
   spec.license       = 'MIT'
-  spec.executables << "puppet-commit"
-  
+  spec.executables << 'puppet-commit'
+
   # Specify the main entry point file
   spec.files = Dir[
       'README.md',
