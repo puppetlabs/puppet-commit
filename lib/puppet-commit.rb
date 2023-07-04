@@ -28,7 +28,7 @@ class PuppetCommit
       }
     
       command = 'generate a concise commit messgage in the present tense, based on the git diff supplied at the end of this message.' +
-                "The commit message should be no more than 72 characters long, and you should follow the most relevant style in #{styles}" +
+                "The commit message should be no more than 72 characters long, and you should pick and follow the most relevant style in #{styles}" +
                 'Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit.' +
                 "Git Diff = #{Open3.capture3('git diff')}"
     
