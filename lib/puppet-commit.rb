@@ -3,6 +3,8 @@ class PuppetCommit
   require 'open3'
   require 'json'
   def self.commit
+    puts "staging files"
+    Open3.capture3("git add .")
     OpenAI.configure do |config|
       config.access_token = ENV.fetch('OPENAI_API_KEY', nil)
     end
@@ -24,17 +26,20 @@ class PuppetCommit
         fix: 'A bug fix' 
       }
     
-      command = 'generate a consise commit messgage in the present tense, based on the git diff supplied at the end of this message.' +
-                "The commit message should be no more than 72 characters long, and you should follow the most suitable style in #{styles}" +
+      command = 'generate a concise commit messgage in the present tense, based on the git diff supplied at the end of this message.' +
+                "The commit message should be no more than 72 characters long, and you should follow the most relevant style in #{styles}" +
                 'Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit.' +
-                "here is the diff - #{Open3.capture3('git diff')}"
+                "Git Diff = #{Open3.capture3('git diff')}"
     
     commit_msg = client.chat(
       parameters: {
           model: "gpt-3.5-turbo", # Required.
           messages: [{ role: "user", content: command}], # Required.
+          temperature: 0.3
       })
     
-    puts commit_msg['choices'][0]['message']['content']
+    msg = commit_msg['choices'][0]['message']['content']
+    puts "committing with message: #{msg}"
+    Open3.capture3("git commit -m '#{msg}'")
   end
 end
