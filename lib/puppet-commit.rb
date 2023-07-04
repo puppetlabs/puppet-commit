@@ -2,6 +2,7 @@ class PuppetCommit
   require 'openai'
   require 'open3'
   require 'json'
+  require 'highline'
   def self.commit
     puts "staging files"
     Open3.capture3("git add .")
