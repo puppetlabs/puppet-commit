@@ -6,8 +6,6 @@ class PuppetCommit
   require 'json'
   require 'highline'
   def self.commit
-    puts 'staging files'
-    Open3.capture3('git add .')
     OpenAI.configure do |config|
       config.access_token = ENV.fetch('OPENAI_API_KEY', nil)
     end
@@ -30,7 +28,7 @@ class PuppetCommit
     }
 
     command = 'generate a concise commit messgage in the present tense, based on the git diff supplied at the end of this message.' \
-              "The commit message should be no more than 72 characters long, and you should pick and follow the most relevant style in #{styles}" \
+              "The commit message title should be no more than 72 characters long, and you should pick and follow the most relevant style in #{styles}" \
               'Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit.' \
               "Git Diff = #{Open3.capture3('git diff')}"
 
@@ -41,6 +39,8 @@ class PuppetCommit
         temperature: 0.3
       }
     )
+    puts 'staging files'
+    Open3.capture3('git add .')
 
     msg = commit_msg['choices'][0]['message']['content']
     puts "committing with message: #{msg}"
