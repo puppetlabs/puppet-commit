@@ -17,21 +17,24 @@ class PuppetCommit
       feat: 'A new feature',
       bugfix: 'A bug fix'
     }
-
     msg = commit_msg['choices'][0]['message']['content']
     user_prompt(msg)
   # Choose a type from the type-to-description JSON below that best describes the git diff:\n${
-    styles = {
-      docs: 'Documentation only changes',
-      style: 'Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)',
-      maint: "Other changes that don't modify source code",
-      revert: 'Reverts a previous commit',
-      feat: 'A new feature',
-      bugfix: 'A bug fix'
-    }
+
+  styles = {
+    docs: 'Documentation only changes',
+    syntax: 'Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)',
+    maint: "Other changes that don't modify source code",
+    revert: 'Reverts a previous commit',
+    feat: 'Code that adds new functionality to the system',
+    bugfix: 'A bug fix'
+  }
 
   command = 'Generate a concise commit message in the present tense, based on the git diff supplied at the end of this message. ' \
-            "The commit message title should be no more than 72 characters long, and you should pick and follow the most relevant style in the following group of styles: #{styles} " \
+            "The commit message title should be no more than 72 characters long. The title should be based on the branch name: #{branch}. " \
+            " The title should be prefixed by a tag. The tag should be placed in between parenthesis. " \
+            " The following list contains all valid tags you can use alongside a description for each of them: #{styles} " \
+            'You only need to prefix the tag, there is no need to include the description of the tag.' \
             'Do not reference irrelevant changes, such as translation. Your entire response will be passed directly into a git commit. ' \
             "Git Diff = #{Open3.capture3('git diff')}"
 
@@ -114,4 +117,8 @@ end
   def self.get_substring(msg, string)
     msg.to_s.match(/#{string}: (,?.*)/).captures[0]
   end
+end
+
+def git_branch
+  Open3.capture3('git branch --show-current')[0].strip
 end
