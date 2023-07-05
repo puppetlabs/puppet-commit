@@ -37,7 +37,7 @@ def user_prompt(commit_msg)
         puts 'Exiting...'
         break
       end
-      do_not_repeat_msg = "Your message should be unique. Do not repeat the last message: #{command}"
+      create_commit_message.do_not_repeat_msg = "Your message should be unique. Do not repeat the last message: #{command}"
       count += 1
       msg = create_commit_message['choices'][0]['message']['content']
     else
