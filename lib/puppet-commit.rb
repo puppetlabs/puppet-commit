@@ -106,5 +106,5 @@ def git_commit(msg)
 end
 
 def git_branch
-  Open3.capture3('git branch --show-current')
+  Open3.capture3('git branch --show-current')[0].strip
 end
