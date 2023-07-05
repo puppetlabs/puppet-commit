@@ -6,6 +6,7 @@ class PuppetCommit
   require 'json'
   require 'highline'
   def self.commit
+    generating_commit_waiting_message()
     OpenAI.configure do |config|
       config.access_token = ENV.fetch('OPENAI_API_KEY', nil)
     end
@@ -34,11 +35,41 @@ class PuppetCommit
         temperature: 0.3
       }
     )
-    puts 'staging files'
-    Open3.capture3('git add .')
 
     msg = commit_msg['choices'][0]['message']['content']
-    puts "committing with message: #{msg}"
-    Open3.capture3("git commit -m '#{msg}'")
+    user_prompt(msg)
   end
+end
+
+def generating_commit_waiting_message()
+  10.times do |i|
+    print "Getting an AI generated commit" +  ("." * (i % 5)) + "  \r"
+    $stdout.flush
+    sleep(0.5)
+  end
+end
+
+def user_prompt(msg)
+  puts "\nCommit message:\n'#{msg}'\n\nAre you happy with the above commit message? [Y/n] "
+  answer = gets
+  case answer.strip
+  when 'Y', 'y', 'yes', 'Yes'
+    git_add
+    git_commit(msg)
+  when 'N', 'n', 'No', 'no'
+    puts 'No'
+  else
+    puts 'No valid response given'
+    puts answer
+  end
+end
+
+def git_add
+  puts 'Staging files'
+  Open3.capture3('git add .')
+end
+
+def git_commit(msg)
+  puts "Committing with message: #{msg}"
+  Open3.capture3("git commit -m '#{msg}'")
 end
