@@ -4,7 +4,6 @@ class PuppetCommit
   require 'openai'
   require 'open3'
   require 'json'
-  require 'highline'
   require 'ruby_figlet'
 
   def self.commit(client, create_pr = false)
