@@ -10,7 +10,7 @@ end
 client = OpenAI::Client.new
 
 if ARGV.include?('--create-pr')
-  PuppetCommit.create_pr(client)
+  PuppetCommit.commit(client, true)
 else
   PuppetCommit.commit(client)
 end
