@@ -30,4 +30,8 @@ Gem::Specification.new do |spec|
 
   # Specify the test files
   spec.test_files    = Dir['spec/**/*_spec.rb']
+
+  spec.add_runtime_dependency 'open3', '~> 0.1'
+  spec.add_runtime_dependency 'ruby_figlet', '~> 0.6.1'
+  spec.add_runtime_dependency 'ruby-openai', '~> 4.0'
 end
