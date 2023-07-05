@@ -6,23 +6,21 @@ class PuppetCommit
   require 'json'
   require 'highline'
   require 'ruby_figlet'
-  def self.commit
+
+  def self.commit(client, create_pr = false)
     generating_commit_waiting_message
-    OpenAI.configure do |config|
-      config.access_token = ENV.fetch('OPENAI_API_KEY', nil)
-    end
-
-    commit_msg = create_commit_message
-
-    user_prompt(commit_msg)
+    commit_msg = create_commit_message(client)
+    user_prompt(commit_msg, client)
+    create_pr(client) if create_pr
   end
 end
 
-def user_prompt(commit_msg)
+def user_prompt(commit_msg, client)
+  ARGV.clear # clear the ARGV array so that the user can be prompted for input
   msg = commit_msg['choices'][0]['message']['content']
   satisfactory_message = false
   count = 0
-  while !satisfactory_message
+  until satisfactory_message
     puts "\n\n--------------------------------------------------------------------------------------"
     puts "Commit message:\n\n'#{msg}'\n\n"
     puts "\n--------------------------------------------------------------------------------------"
@@ -39,7 +37,7 @@ def user_prompt(commit_msg)
         break
       end
       count += 1
-      msg = create_commit_message['choices'][0]['message']['content']
+      msg = create_commit_message(client)['choices'][0]['message']['content']
     else
       puts 'No valid response given'
       break
@@ -47,9 +45,8 @@ def user_prompt(commit_msg)
   end
 end
 
-def create_commit_message
-  client = OpenAI::Client.new
-  branch = git_branch()
+def create_commit_message(client)
+  branch = git_branch
 
   # Choose a type from the type-to-description JSON below that best describes the git diff:\n${
   styles = {
@@ -63,34 +60,61 @@ def create_commit_message
 
   command = 'Generate a concise commit message in the present tense, based on the git diff supplied at the end of this message. ' \
             "The commit message title should be no more than 72 characters long. The title should be based on the branch name: #{branch}. " \
-            " The title should be prefixed by a tag. The tag should be placed in between parenthesis. " \
+            ' The title should be prefixed by a tag. The tag should be placed in between parenthesis. ' \
             " The following list contains all valid tags you can use alongside a description for each of them: #{styles} " \
             'You only need to prefix the tag, there is no need to include the description of the tag.' \
             'Do not reference irrelevant changes, such as translation. Your entire response will be passed directly into a git commit. ' \
             "Git Diff = #{Open3.capture3('git diff')}"
 
-  commit_msg = client.chat(
+  client.chat(
     parameters: {
       model: 'gpt-3.5-turbo', # Required.
       messages: [{ role: 'user', content: command }], # Required.
       temperature: 0.3 # Controls randomness
     }
   )
+end
 
-  commit_msg
+def create_pr(client)
+  labels = %w[maintenance bugfix feature backwards-incompatible]
+  branch = git_branch
+  git_diff = Open3.capture3("git diff #{branch} origin/main")
+  command = 'generate a github PR title, based on the git commits at the end of this message. ' \
+            "The PR title should be no more than 72 characters long, and you should pick the most relevant label in #{labels} and return this seperately as 'Label: <insert_label_here>'. " \
+            "Git commits = #{git_diff}"
+
+  pr = client.chat(
+    parameters: {
+      model: 'gpt-3.5-turbo', # Required.
+      messages: [{ role: 'user', content: command }], # Required.
+      temperature: 0.3
+    }
+  )
+  msg = pr['choices'][0]['message']['content']
+  label = get_substring(msg, 'Label')
+  title = get_substring(msg, 'Title')
+  puts "Pushing branch #{branch}..."
+  Open3.capture3("git push origin #{branch}")
+  cmd = "gh pr create --title \"#{title.gsub('"', '')}\" --body \"#{msg.gsub('"', '')}\" --label #{label}"
+  Open3.capture3(cmd)
+end
+
+# used to return the label and title from the returned ai message
+def get_substring(msg, string)
+  msg.to_s.match(/#{string}: (,?.*)/).captures[0]
 end
 
 def generating_commit_waiting_message
   puppet_commit_art
   10.times do |i|
-    print "Getting an AI generated commit" +  ("." * (i % 5)) + "  \r"
+    print "Getting an AI generated commit#{'.' * (i % 5)}  \r"
     $stdout.flush
     sleep(0.5)
   end
 end
 
 def puppet_commit_art
-  art = RubyFiglet::Figlet.new "puppet-commit", 'cyberlarge'
+  art = RubyFiglet::Figlet.new 'puppet-commit', 'cyberlarge'
   puts art
   puts ''
 end

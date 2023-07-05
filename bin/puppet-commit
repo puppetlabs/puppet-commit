@@ -3,4 +3,14 @@
 
 require_relative '../lib/puppet-commit'
 
-PuppetCommit.commit
+OpenAI.configure do |config|
+  config.access_token = ENV.fetch('OPENAI_API_KEY', nil)
+end
+
+client = OpenAI::Client.new
+
+if ARGV.include?('--create-pr')
+  PuppetCommit.commit(client, true)
+else
+  PuppetCommit.commit(client)
+end
