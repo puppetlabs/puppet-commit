@@ -96,7 +96,6 @@ def create_pr(client)
   puts "Pushing branch #{branch}..."
   Open3.capture3("git push origin #{branch}")
   cmd = "gh pr create --title \"#{title.gsub('"', '')}\" --body \"#{msg.gsub('"', '')}\" --label #{label}"
-  puts cmd
   Open3.capture3(cmd)
 end
 
