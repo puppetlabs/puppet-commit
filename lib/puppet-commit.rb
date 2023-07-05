@@ -6,14 +6,9 @@ class PuppetCommit
   require 'json'
   require 'highline'
   require 'ruby_figlet'
-  def self.commit
+  def self.commit(client)
     generating_commit_waiting_message
-    OpenAI.configure do |config|
-      config.access_token = ENV.fetch('OPENAI_API_KEY', nil)
-    end
-
-    commit_msg = create_commit_message
-
+    commit_msg = create_commit_message(client)
     user_prompt(commit_msg)
   end
 end
@@ -47,8 +42,7 @@ def user_prompt(commit_msg)
   end
 end
 
-def create_commit_message
-  client = OpenAI::Client.new
+def create_commit_message(client)
   branch = git_branch()
 
   # Choose a type from the type-to-description JSON below that best describes the git diff:\n${
@@ -79,6 +73,35 @@ def create_commit_message
 
   commit_msg
 end
+
+def self.create_pr(client)
+  labels = %w[maintenance bugfix feature backwards-incompatible]
+  git_branch = Open3.capture3('git branch --show-current')[0].strip
+  git_diff = Open3.capture3("git diff #{git_branch} origin/main")
+  command = 'generate a github PR title, based on the git commits at the end of this message. ' \
+            "The PR title should be no more than 72 characters long, and you should pick the most relevant label in #{labels} and return this seperately as 'Label: <insert_label_here>'. " \
+            "Git commits = #{git_diff}"
+
+  pr = client.chat(
+    parameters: {
+      model: 'gpt-3.5-turbo', # Required.
+      messages: [{ role: 'user', content: command }], # Required.
+      temperature: 0.3
+    }
+  )
+  msg = pr['choices'][0]['message']['content']
+  label = get_substring(msg, 'Label')
+  title = get_substring(msg, 'Title')
+  puts "Pushing branch #{git_branch}..."
+  Open3.capture3("git push origin #{git_branch}")
+  cmd = "gh pr create --title \"#{title.gsub('"', '')}\" --body \"#{msg.gsub('"', '')}\" --label #{label}"
+  Open3.capture3(cmd)
+end
+
+  # used to return the label and title from the returned ai message
+  def self.get_substring(msg, string)
+    msg.to_s.match(/#{string}: (,?.*)/).captures[0]
+  end
 
 def generating_commit_waiting_message
   puppet_commit_art
