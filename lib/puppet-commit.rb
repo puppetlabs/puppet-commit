@@ -23,9 +23,10 @@ def user_prompt(commit_msg)
   satisfactory_message = false
   count = 0
   while !satisfactory_message
+    puts "\n\n--------------------------------------------------------------------------------------"
+    puts "Commit message:\n\n'#{msg}'\n\n"
     puts "\n--------------------------------------------------------------------------------------"
-    puts "\nCommit message:\n\t'#{msg}'\n\n"
-    puts "Are you happy with the above commit message? [Y/n] "
+    puts "\nAre you happy with the above commit message? [Y/n] "
     answer = gets
     case answer.strip
     when 'Y', 'y', 'yes', 'Yes', 'YES'
