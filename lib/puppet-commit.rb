@@ -78,7 +78,7 @@ end
 def create_pr(client)
   labels = %w[maintenance bugfix feature backwards-incompatible]
   branch = git_branch
-  git_diff = Open3.capture3("git diff #{branch} origin/main")
+  git_diff = Open3.capture3("git log origin/main..#{branch}")
   command = 'generate a github PR title, based on the git commits at the end of this message. ' \
             "The PR title should be no more than 72 characters long, and you should pick the most relevant label in #{labels} and return this seperately as 'Label: <insert_label_here>'. " \
             "Git commits = #{git_diff}"
