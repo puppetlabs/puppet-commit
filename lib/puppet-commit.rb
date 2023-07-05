@@ -12,34 +12,67 @@ class PuppetCommit
       config.access_token = ENV.fetch('OPENAI_API_KEY', nil)
     end
 
-    client = OpenAI::Client.new
+    commit_msg = create_commit_message
 
-    # Choose a type from the type-to-description JSON below that best describes the git diff:\n${
-    styles = {
-      docs: 'Documentation only changes',
-      style: 'Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)',
-      maint: "Other changes that don't modify source code",
-      revert: 'Reverts a previous commit',
-      feat: 'A new feature',
-      bugfix: 'A bug fix'
-    }
-
-    command = 'generate a concise commit messgage in the present tense, based on the git diff supplied at the end of this message. ' \
-              "The commit message title should be no more than 72 characters long, and you should pick and follow the most relevant style in #{styles} " \
-              'Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit. ' \
-              "Git Diff = #{Open3.capture3('git diff')}"
-
-    commit_msg = client.chat(
-      parameters: {
-        model: 'gpt-3.5-turbo', # Required.
-        messages: [{ role: 'user', content: command }], # Required.
-        temperature: 0.3
-      }
-    )
-
-    msg = commit_msg['choices'][0]['message']['content']
-    user_prompt(msg)
+    user_prompt(commit_msg)
   end
+end
+
+def user_prompt(commit_msg)
+  msg = commit_msg['choices'][0]['message']['content']
+  satisfactory_message = false
+  count = 0
+  while !satisfactory_message
+    puts "\n--------------------------------------------------------------------------------------"
+    puts "\nCommit message:\n\t'#{msg}'\n\n"
+    puts "Are you happy with the above commit message? [Y/n] "
+    answer = gets
+    case answer.strip
+    when 'Y', 'y', 'yes', 'Yes'
+      git_add
+      git_commit(msg)
+      satisfactory_message = true
+    when 'N', 'n', 'No', 'no'
+      if count == 2
+        puts 'Exiting...'
+        break
+      end
+      count += 1
+      msg = create_commit_message['choices'][0]['message']['content']
+    else
+      puts 'No valid response given'
+      break
+    end
+  end
+end
+
+def create_commit_message
+  client = OpenAI::Client.new
+
+  # Choose a type from the type-to-description JSON below that best describes the git diff:\n${
+  styles = {
+    docs: 'Documentation only changes',
+    style: 'Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)',
+    maint: "Other changes that don't modify source code",
+    revert: 'Reverts a previous commit',
+    feat: 'A new feature',
+    bugfix: 'A bug fix'
+  }
+
+  command = 'generate a concise commit messgage in the present tense, based on the git diff supplied at the end of this message. ' \
+            "The commit message title should be no more than 72 characters long, and you should pick and follow the most relevant style in #{styles} " \
+            'Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit. ' \
+            "Git Diff = #{Open3.capture3('git diff')}"
+
+  commit_msg = client.chat(
+    parameters: {
+      model: 'gpt-3.5-turbo', # Required.
+      messages: [{ role: 'user', content: command }], # Required.
+      temperature: 0.3
+    }
+  )
+
+  commit_msg
 end
 
 def generating_commit_waiting_message
@@ -55,21 +88,6 @@ def puppet_commit_art
   art = RubyFiglet::Figlet.new "puppet-commit", 'cyberlarge'
   puts art
   puts ''
-end
-
-def user_prompt(msg)
-  puts "\nCommit message:\n'#{msg}'\n\nAre you happy with the above commit message? [Y/n] "
-  answer = gets
-  case answer.strip
-  when 'Y', 'y', 'yes', 'Yes'
-    git_add
-    git_commit(msg)
-  when 'N', 'n', 'No', 'no'
-    puts 'No'
-  else
-    puts 'No valid response given'
-    puts answer
-  end
 end
 
 def git_add
