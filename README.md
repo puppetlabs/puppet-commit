@@ -4,8 +4,6 @@
 
 The AI-Powered Commit Generator is a repository that demonstrates the usage of artificial intelligence to automatically generate commit messages for software development projects. By leveraging OpenAI's GPT-3.5 language model, this repository aims to streamline the process of creating informative and concise commit messages.
 
-https://github.com/puppetlabs/puppet-commit/assets/66372268/f3b27437-8ade-43ac-a076-6e0b87a49b48
-
 ## Features
 
 - **Automated Commit Message Generation**: The AI model analyzes code changes, commit histories, and issue tracking systems to generate commit messages automatically. This saves developers time and effort in crafting detailed commit messages manually.
@@ -26,23 +24,32 @@ To start using the AI-Powered Commit Generator in your software development work
    export OPENAI_API_KEY=<API KEY SHOULD GO HERE.>
    ```
 
-1. **Installation**: Clone the repository to your local development environment.
+2. **Installation**: Clone the repository to your local development environment.
 
    ```shell
    git clone https://github.com/puppetlabs-commit
    ```
 
-2. **Setup Dependencies**: Install the required dependencies by running the following command:
+3. **Setup Dependencies**: Install the required dependencies by running the following command:
 
    ```shell
    bundle install
    ```
 
-3. **Execution**: Running the script to generate your AI powered commit message run the following command:
+4. **Execution**: Running the script to generate your AI powered commit message run the following command:
 
    ```shell
    bundle exec puppet-commit
    ```
+   https://github.com/puppetlabs/puppet-commit/assets/66372268/f3b27437-8ade-43ac-a076-6e0b87a49b48
+
+5. **Execution**: If you want `puppet-commit` to create your PR for you as well, run the following command instead of the above:
+
+   ```shell
+   bundle exec puppet-commit --create-pr
+   ```
+   https://github.com/puppetlabs/puppet-commit/assets/66372268/60973cd3-41f0-483a-92a3-0324f34847b9
+
 
 ## Contributing
 
