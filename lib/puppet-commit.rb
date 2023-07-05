@@ -55,6 +55,7 @@ class PuppetCommit
     answer = gets
     case answer.strip
     when 'Y', 'y', 'yes', 'Yes'
+      git_add
       git_commit(msg)
     when 'N', 'n', 'No', 'no'
       puts 'No'
@@ -64,6 +65,11 @@ class PuppetCommit
     end
   end
 
+  def self.git_add
+    puts 'Staging files'
+    Open3.capture3('git add .')
+  end
+
   def self.git_commit(msg)
     puts "Committing with message: #{msg}"
     Open3.capture3("git commit -m '#{msg}'")
@@ -71,9 +77,9 @@ class PuppetCommit
 
   def self.create_pr(client)
     labels = %w[maintenance bugfix feature backwards-incompatible]
-    git_branch = Open3.capture3('git branch --show-current')
+    git_branch = Open3.capture3('git branch --show-current')[0].strip
     git_diff = Open3.capture3("git diff #{git_branch} origin/main")
-    command = 'generate a github PR title and message, based on the git commits at the end of this message. ' \
+    command = 'generate a github PR title, based on the git commits at the end of this message. ' \
               "The PR title should be no more than 72 characters long, and you should pick the most relevant label in #{labels} and return this seperately as 'Label: <insert_label_here>'. " \
               "Git commits = #{git_diff}"
 
@@ -87,11 +93,10 @@ class PuppetCommit
     msg = pr['choices'][0]['message']['content']
     label = get_substring(msg, 'Label')
     title = get_substring(msg, 'Title')
-    puts 'Pushing branch...'
+    puts "Pushing branch #{git_branch}..."
     Open3.capture3("git push origin #{git_branch}")
-    cmd = "gh pr create -t '#{title}' -b '#{msg.strip.gsub!("'","")}' -l #{label}"
-    puts cmd
-    puts Open3.capture3(cmd)
+    cmd = "gh pr create --title \"#{title.gsub('"', '')}\" --body \"#{msg.gsub('"', '')}\" --label #{label}"
+    Open3.capture3(cmd)
   end
 
   # used to return the label and title from the returned ai message
