@@ -5,6 +5,7 @@ class PuppetCommit
   require 'open3'
   require 'json'
   require 'highline'
+  require 'ruby_figlet'
   def self.commit
     generating_commit_waiting_message()
     OpenAI.configure do |config|
@@ -42,11 +43,18 @@ class PuppetCommit
 end
 
 def generating_commit_waiting_message()
+  ai_commit_art()
   10.times do |i|
     print "Getting an AI generated commit" +  ("." * (i % 5)) + "  \r"
     $stdout.flush
     sleep(0.5)
   end
+end
+
+def ai_commit_art()
+  art = RubyFiglet::Figlet.new "Puppet Commit", 'cyberlarge'
+  puts art
+  puts ''
 end
 
 def user_prompt(msg)

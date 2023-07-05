@@ -9,6 +9,7 @@ group :required do
   gem 'json', '~> 2.6', require: true
   gem 'open3', '~> 0.1', require: true
   gem 'ruby-openai', '~> 4.0', require: true
+  gem 'ruby_figlet', '~> 0.6.1', require: true
 end
 
 group :rubocop do
