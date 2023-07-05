@@ -28,11 +28,11 @@ def user_prompt(commit_msg)
     puts "Are you happy with the above commit message? [Y/n] "
     answer = gets
     case answer.strip
-    when 'Y', 'y', 'yes', 'Yes'
+    when 'Y', 'y', 'yes', 'Yes', 'YES'
       git_add
       git_commit(msg)
       satisfactory_message = true
-    when 'N', 'n', 'No', 'no'
+    when 'N', 'n', 'No', 'no', 'NO'
       if count == 2
         puts 'Exiting...'
         break
@@ -59,16 +59,16 @@ def create_commit_message
     bugfix: 'A bug fix'
   }
 
-  command = 'generate a concise commit messgage in the present tense, based on the git diff supplied at the end of this message. ' \
-            "The commit message title should be no more than 72 characters long, and you should pick and follow the most relevant style in #{styles} " \
-            'Exclude anything unnecessary such as translation. Your entire response will be passed directly into git commit. ' \
+  command = 'Generate a concise commit message in the present tense, based on the git diff supplied at the end of this message. ' \
+            "The commit message title should be no more than 72 characters long, and you should pick and follow the most relevant style in the following group of styles: #{styles} " \
+            'Do not reference irrelevant changes, such as translation. Your entire response will be passed directly into a git commit. ' \
             "Git Diff = #{Open3.capture3('git diff')}"
 
   commit_msg = client.chat(
     parameters: {
       model: 'gpt-3.5-turbo', # Required.
       messages: [{ role: 'user', content: command }], # Required.
-      temperature: 0.3
+      temperature: 0.3 # Controls randomness
     }
   )
 
