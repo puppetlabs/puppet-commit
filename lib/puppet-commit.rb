@@ -37,6 +37,7 @@ def user_prompt(commit_msg)
         puts 'Exiting...'
         break
       end
+      do_not_repeat_msg = "Your message should be unique. Do not repeat the last message: #{command}"
       count += 1
       msg = create_commit_message['choices'][0]['message']['content']
     else
@@ -49,6 +50,7 @@ end
 def create_commit_message
   client = OpenAI::Client.new
   branch = git_branch()
+  do_not_repeat_msg = ''
 
   # Choose a type from the type-to-description JSON below that best describes the git diff:\n${
   styles = {
@@ -62,11 +64,12 @@ def create_commit_message
 
   command = 'Generate a concise commit message in the present tense, based on the git diff supplied at the end of this message. ' \
             "The commit message title should be no more than 72 characters long. The title should be based on the branch name: #{branch}. " \
-            " The title should be prefixed by a tag. The tag should be placed in between parenthesis. " \
+            'The title should be prefixed by a tag. The tag should be placed in between parenthesis.' \
             " The following list contains all valid tags you can use alongside a description for each of them: #{styles} " \
             'You only need to prefix the tag, there is no need to include the description of the tag.' \
             'Do not reference irrelevant changes, such as translation. Your entire response will be passed directly into a git commit. ' \
-            "Git Diff = #{Open3.capture3('git diff')}"
+            "Git Diff = #{Open3.capture3('git diff')}" \
+            "#{do_not_repeat_msg}"
 
   commit_msg = client.chat(
     parameters: {
