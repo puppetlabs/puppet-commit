@@ -4,6 +4,8 @@
 
 The AI-Powered Commit Generator is a repository that demonstrates the usage of artificial intelligence to automatically generate commit messages for software development projects. By leveraging OpenAI's GPT-3.5 language model, this repository aims to streamline the process of creating informative and concise commit messages.
 
+https://github.com/puppetlabs/puppet-commit/assets/66372268/f3b27437-8ade-43ac-a076-6e0b87a49b48
+
 ## Features
 
 - **Automated Commit Message Generation**: The AI model analyzes code changes, commit histories, and issue tracking systems to generate commit messages automatically. This saves developers time and effort in crafting detailed commit messages manually.
