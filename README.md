@@ -1,5 +1,5 @@
 # puppet-commit
-
+![Ruby](https://img.shields.io/badge/ruby-%23CC342D.svg?style=for-the-badge&logo=ruby&logoColor=white)
 # AI-Powered Commit Generator
 
 The AI-Powered Commit Generator is a repository that demonstrates the usage of artificial intelligence to automatically generate commit messages for software development projects. By leveraging OpenAI's GPT-3.5 language model, this repository aims to streamline the process of creating informative and concise commit messages.
